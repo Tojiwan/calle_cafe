@@ -12,7 +12,7 @@ for (const route of ["index", "menu"]) {
       assert.match(html, new RegExp(`href="#${section}"`));
       assert.match(html, new RegExp(`id="${section}"`));
     }
-    assert.equal((html.match(/data-product-id=/g) || []).length, 37);
+    assert.equal((html.match(/data-product-id=/g) || []).length, 36);
     assert.equal((html.match(/data-slider-id=/g) || []).length, 6);
     assert.match(html, /₱20 for additional toppings/);
     assert.doesNotMatch(html, /Our menu is being prepared/);

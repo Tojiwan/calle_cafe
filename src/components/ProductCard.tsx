@@ -17,6 +17,17 @@ export default function ProductCard({ product, priority = false }: { product: Me
       <div className="product-caption">
         <h4>{product.name}</h4>
         {product.priceLabel && <p className="product-price">{product.priceLabel}</p>}
+        {product.piecesLabel && <p className="product-quantity">{product.piecesLabel}</p>}
+        {product.options && (
+          <dl className="product-options">
+            {product.options.map((option) => (
+              <div key={option.label}>
+                <dt>{option.label}</dt>
+                <dd>{option.values}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
         {product.description && <p className="product-description">{product.description}</p>}
       </div>
     </article>

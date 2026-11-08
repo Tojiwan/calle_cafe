@@ -14,10 +14,20 @@ type Props = { id: string; title: string; products: MenuProduct[] };
 
 export default function ProductSlider({ id, title, products }: Props) {
   const swiperRef = useRef<SwiperInstance | null>(null);
-  const [position, setPosition] = useState({ beginning: true, end: false, locked: false, index: 0, ready: false });
+  const [position, setPosition] = useState({ beginning: true, end: false, locked: false, first: 1, last: 1, ready: false });
 
   function sync(swiper: SwiperInstance) {
-    setPosition({ beginning: swiper.isBeginning, end: swiper.isEnd, locked: swiper.isLocked, index: swiper.activeIndex, ready: true });
+    const visible = swiper.slidesGrid.flatMap((offset, index) => {
+      const left = offset + swiper.translate;
+      // Allow subpixel rounding, but exclude the partial next/previous card preview.
+      return left >= -1 && left + swiper.slidesSizesGrid[index] <= swiper.size + 1 ? [index + 1] : [];
+    });
+    setPosition({
+      beginning: swiper.isBeginning, end: swiper.isEnd, locked: swiper.isLocked,
+      first: visible[0] ?? swiper.activeIndex + 1,
+      last: visible.at(-1) ?? swiper.activeIndex + 1,
+      ready: true,
+    });
   }
 
   useEffect(() => {
@@ -75,10 +85,11 @@ export default function ProductSlider({ id, title, products }: Props) {
         tabIndex={0}
         role="group"
         aria-label={`${title} products`}
-        aria-describedby={`${id}-hint`}
         a11y={{ slideLabelMessage: "{{index}} of {{slidesLength}}", scrollOnFocus: false }}
         onSwiper={(swiper) => { swiperRef.current = swiper; sync(swiper); }}
         onSlideChange={sync}
+        onSetTranslate={sync}
+        onUpdate={sync}
         onResize={sync}
         onLock={sync}
         onUnlock={sync}
@@ -92,9 +103,8 @@ export default function ProductSlider({ id, title, products }: Props) {
         ))}
       </Swiper>
       <div className="slider-footnote">
-        <p id={`${id}-hint`}>{position.locked ? "A little something for every mood." : "Swipe, use the arrows, or focus here and press ← →."}</p>
-        <span className="slider-position" role="status" aria-live="polite" aria-atomic="true" aria-label={`${title}: first visible product ${position.index + 1} of ${products.length}`}>
-          {String(position.index + 1).padStart(2, "0")} <span aria-hidden="true">/</span> {String(products.length).padStart(2, "0")}
+        <span className="slider-position" role="status" aria-live="polite" aria-atomic="true" aria-label={`${title}: ${position.first === position.last ? `product ${position.first}` : `products ${position.first} through ${position.last}`} of ${products.length}`}>
+          {String(position.first).padStart(2, "0")}{position.last !== position.first && `–${String(position.last).padStart(2, "0")}`} <span aria-hidden="true">/</span> {String(products.length).padStart(2, "0")}
         </span>
       </div>
     </section>

@@ -6,6 +6,22 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".swiper-initialized")).toHaveCount(6);
 });
 
+test("selected navigation follows scrolling in both directions, independent of the hash", async ({ page }) => {
+  const nav = page.getByRole('navigation', { name: 'Menu sections' });
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await nav.getByRole('link', { name: 'Weekend Cocktails' }).click();
+    await expect(nav.locator('[aria-current="location"]')).toHaveAttribute('href', '#weekend-cocktails');
+    for (const id of ['snacks', 'drinks', 'snacks', 'weekend-cocktails']) {
+      await page.locator(`section#${id}`).evaluate((section) => section.scrollIntoView());
+      await expect(nav.locator('[aria-current="location"]')).toHaveAttribute('href', `#${id}`);
+      expect(new URL(page.url()).hash).toBe('#weekend-cocktails');
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(nav.locator('[aria-current="location"]')).toHaveAttribute('href', '#drinks');
+  }
+});
+
 test("each slider's arrows and focused keyboard input move only that category", async ({ page }) => {
   const sliders = page.locator("[data-slider-id]");
   for (let index = 0; index < 6; index++) {
@@ -42,6 +58,29 @@ test("touch swipe advances coffee without moving matcha", async ({ page, context
   await session.detach();
 });
 
+test("slider counters reflect full cards at the start, end, and after resizing", async ({ page }) => {
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.reload();
+    await expect(page.locator('.swiper-initialized')).toHaveCount(6);
+    for (const [id, total] of [["coffee-based", 7], ["fruit-series", 11]] as const) {
+      const slider = page.locator(`[data-slider-id="${id}"]`);
+      const status = slider.getByRole('status');
+      const fullCards = width === 1440 ? 4 : width === 768 ? 2 : 1;
+      const pad = (value: number) => String(value).padStart(2, '0');
+      await expect(status).toHaveText(`${fullCards === 1 ? '01' : `01–${pad(fullCards)}`} / ${pad(total)}`);
+      const next = slider.getByRole('button', { name: /^Next/ });
+      for (let step = 0; step < total && await next.isEnabled(); step++) await next.click();
+      await expect(next).toBeDisabled();
+      await expect(status).toHaveText(`${fullCards === 1 ? pad(total) : `${pad(total - fullCards + 1)}–${pad(total)}`} / ${pad(total)}`);
+    }
+  }
+  const matcha = page.locator('[data-slider-id="matcha-series"]');
+  await expect(matcha.getByRole('status')).toHaveText('01–04 / 04');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(matcha.getByRole('status')).toHaveText('01 / 04');
+});
+
 test("desktop collections that fit hide controls and resize restores them", async ({ page }) => {
   const matcha = page.locator('[data-slider-id="matcha-series"]');
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -57,7 +96,7 @@ test("desktop collections that fit hide controls and resize restores them", asyn
 for (const width of [320, 375, 390, 430, 768, 1440]) {
   test(`menu fits ${width}px and all anchors clear the header`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await expect(page.locator("[data-product-id]")).toHaveCount(37);
+    await expect(page.locator("[data-product-id]")).toHaveCount(36);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     if (width === 390) {
       const media = await page.locator(".product-media").first().boundingBox();
@@ -69,12 +108,61 @@ for (const width of [320, 375, 390, 430, 768, 1440]) {
       const header = await page.locator(".floating-header").boundingBox();
       expect(heading!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
     }
-    expect(await page.locator('[data-product-id="churros"] .product-price').count()).toBe(0);
+    await expect(page.locator('[data-product-id="churros"] .product-price')).toHaveText("₱100");
     await expect(page.locator('[data-product-id="waffles"]')).toContainText("₱20 for additional toppings");
     const longName = page.locator('[data-product-id="blueberry-peach-cocktail"] h4');
     expect(await longName.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   });
 }
+
+test("snack captions show approved prices, quantities, and readable options", async ({ page }) => {
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const snacks = page.locator('#snacks .product-card');
+    await expect(snacks.locator('.product-price')).toHaveText(["₱100", "₱135", "₱140", "₱185", "₱105", "₱165"]);
+    await expect(snacks.locator('.product-quantity')).toHaveText(["5 pieces", "3 pieces"]);
+    await expect(snacks.locator('.product-options dt')).toHaveText(["Dip options", "Flavor options", "Syrup options", "Toppings"]);
+    const captionsFit = await snacks.locator('.product-caption').evaluateAll((captions) => captions.every((caption) => {
+      const name = caption.querySelector('h4')!.getBoundingClientRect();
+      const price = caption.querySelector('.product-price')!.getBoundingClientRect();
+      return price.left >= name.right && Math.abs(price.top - name.top) < 10 && caption.scrollWidth <= caption.clientWidth;
+    }));
+    expect(captionsFit).toBe(true);
+    await expect(page.locator('.product-price')).toHaveCount(36);
+  }
+});
+
+test("welcome note stays stacked, visible, and inline at every width", async ({ page }) => {
+  for (const width of [320, 375, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(page.locator(".welcome-note")).toBeVisible();
+    const layout = await page.evaluate(() => {
+      const heading = document.querySelector(".welcome h1")!.getBoundingClientRect();
+      const noteElement = document.querySelector(".welcome-note")!;
+      const note = noteElement.getBoundingClientRect();
+      const mark = document.querySelector(".welcome-mark")!.getBoundingClientRect();
+      return {
+        stacked: note.top >= heading.bottom,
+        aligned: Math.abs(note.left - heading.left),
+        noteHeight: note.height,
+        fontSize: parseFloat(getComputedStyle(noteElement).fontSize),
+        markWidth: mark.width,
+        markHeight: mark.height,
+        markNotOrphaned: mark.top < note.top + note.height * 0.7,
+      };
+    });
+    expect(layout.stacked).toBe(true);
+    expect(layout.aligned).toBeLessThanOrEqual(1);
+    expect(layout.noteHeight).toBeLessThan(width === 320 ? 50 : 30);
+    expect(layout.fontSize).toBeGreaterThanOrEqual(14);
+    expect(layout.fontSize).toBeLessThanOrEqual(15);
+    expect(layout.markWidth).toBeGreaterThanOrEqual(18);
+    expect(layout.markWidth).toBeLessThanOrEqual(20.5);
+    expect(layout.markHeight).toBeGreaterThanOrEqual(18);
+    expect(layout.markHeight).toBeLessThanOrEqual(20.5);
+    expect(layout.markNotOrphaned).toBe(true);
+  }
+});
 
 test("reduced-motion preference and keyboard focus are respected", async ({ page }) => {
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
@@ -89,14 +177,14 @@ test("reduced-motion preference and keyboard focus are respected", async ({ page
 test("final acceptance: inventory, touch targets, and view-only controls", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator("[data-slider-id]")).toHaveCount(6);
-  await expect(page.locator("[data-product-id]")).toHaveCount(37);
+  await expect(page.locator("[data-product-id]")).toHaveCount(36);
 
   const categoryCounts = await page.locator("[data-slider-id]").evaluateAll((sliders) =>
     sliders.map((slider) => [slider.getAttribute("data-slider-id"), slider.querySelectorAll("[data-product-id]").length]),
   );
   expect(categoryCounts).toEqual([
     ["coffee-based", 7], ["matcha-series", 4], ["fruit-series", 11],
-    ["milktea-based", 4], ["snacks", 6], ["weekend-cocktails", 5],
+    ["milktea-based", 4], ["snacks", 6], ["weekend-cocktails", 4],
   ]);
 
   const result = await page.evaluate(() => {
@@ -122,7 +210,7 @@ test("final acceptance: inventory, touch targets, and view-only controls", async
   expect(result.undersizedTargets).toEqual([]);
   expect(result.missingAlt).toEqual([]);
   await expect(page.locator(".product-media img").first()).toHaveAttribute("loading", "eager");
-  await expect(page.locator('.product-media img[loading="lazy"]')).toHaveCount(36);
+  await expect(page.locator('.product-media img[loading="lazy"]')).toHaveCount(35);
 });
 
 test("menu has no runtime errors or automated accessibility violations", async ({ page }) => {
@@ -142,7 +230,7 @@ test("static menu remains readable and scrollable without JavaScript", async ({ 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto("http://localhost:3000/menu");
-  await expect(page.locator("[data-product-id]")).toHaveCount(37);
+  await expect(page.locator("[data-product-id]")).toHaveCount(36);
   const track = page.locator("#coffee-based-track");
   expect(await track.evaluate((element) => getComputedStyle(element).overflowX)).toBe("auto");
   await track.evaluate((element) => { element.scrollLeft = element.scrollWidth; });

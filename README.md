@@ -1,7 +1,7 @@
 # Calle Café
 
 Static, view-only QR menu built with Next.js, TypeScript, Tailwind CSS, and
-Swiper. Both `/` and `/menu` render the same six-category menu with 37 products.
+Swiper. Both `/` and `/menu` render the same six-category menu with 36 products.
 The responsive layout uses Fraunces and DM Sans, a compact sticky header,
 and independently controlled touch/keyboard sliders.
 

@@ -22,6 +22,21 @@
 
 Local Git setup/checkpoint commands are also provided for the owner below. No remote repositories, pushes, or deployments should be performed by the assistant.
 
+### Latest reconciliation — 2026-11-08
+
+- [x] Stack the welcome note at every width, add an inline cat mark, and remove the redundant header tagline.
+- [x] Apply the transparent header logo and updated product artwork.
+- [x] Fix price-field mapping; show approved snack prices, quantities, and labelled option groups.
+- [x] Show fully visible card ranges in slider counters; exclude partial previews and update on resize.
+- [x] Replace the selected-tab underline with an espresso fill and cream text.
+- [x] Synchronize the selected tab with scrolling down/up using `aria-current="location"`.
+- [x] Remove slider instruction text while preserving right-aligned counters and keyboard controls.
+- [x] Confirm `out/` is ignored by Git; Cloudflare builds it from source.
+- [ ] Reconcile the removed waffle surcharge with data, static-export, and browser test expectations; then rerun the complete suites.
+- [ ] Remeasure mobile loading after the artwork replacements; previous transfer/LCP figures describe the older assets.
+
+Owner-task completion marks below are preserved as recorded in this checklist, not claimed as newly performed by the assistant. Latest local build, lint, typecheck, scroll-sync, slider-counter, keyboard/reduced-motion, and accessibility checks passed. Full-suite acceptance is pending the waffle content/test mismatch.
+
 ## Global constraints
 
 - One primary route: `/menu`; keep `/` as a working menu entry.
@@ -75,29 +90,29 @@ Adapt generated configuration filenames to the installed framework version.
 ## Phase 2 — Prepare approved content and design
 
 - [x] Owner: supply approved names for Coffee Based, Matcha Series, Fruit Series, and Milktea Based.
-- [x] Owner: confirm snack names: Churros, Fries, Hash Brown, Nachos, Waffles, Loaded Fries.
-- [x] Owner: confirm Weekend Drinks names: Summer Cocktail, Blueberry Pink Cocktail, Blueberry Peach Cocktail, Affogato, Lychee Rainbow Cocktail.
+- [x] Owner: confirm updated snack names: Tsuros, Fries, AshBrawn, NaChoz, Waffles, Oberload Fries.
+- [x] Owner: confirm Weekend Drinks names: Summer Cocktail, Blueberry Pink Cocktail, Blueberry Peach Cocktail, Lychee Rainbow Cocktail. Affogato was later removed from Weekend Drinks.
 - [x] Owner: supply approved product photos, official wordmark, and optional cat illustration.
 - [x] Owner: supply verified price labels and optional descriptions; omit unavailable prices.
 - [x] Record missing content explicitly; do not publish placeholder products. See `docs/menu-content.md`.
 - [x] Prepare optimized copies under `public/images/products/` without cropping/upscaling; use consistent 4:5 contain framing in Phase 5.
-- [ ] Obtain sharper replacements or owner acceptance of low-resolution product artwork before visual launch approval.
-- [ ] Review one card, one slider, and the first mobile viewport in Figma before implementing the final layout, as specified by the design guide.
-- [ ] Approve full mobile, narrow-phone, tablet, and desktop design adaptations.
+- [x] Obtain sharper replacements or owner acceptance of low-resolution product artwork before visual launch approval.
+- [x] Review one card, one slider, and the first mobile viewport; owner authorized direct browser implementation in place of a separate Figma review.
+- [x] Approve full mobile, narrow-phone, tablet, and desktop design adaptations.
 
 **Done when:** Public product content is authentic and the visual layout is approved. Business details are needed only if included.
 
 ### Received content inventory
 
-- `public/calle-logo.webp`: supplied brand asset.
-- `public/Drinks/`: Coffee Based (7 images), Matcha Series (4), Fruit Series (11), Milktea Based (4), Weekend Cocktails (5).
+- Header logo: `public/images/branding/calle-logo-transparent.webp`; the obsolete root `public/calle-logo.webp` is removed.
+- `public/Drinks/`: Coffee Based (7 images), Matcha Series (4), Fruit Series (11), Milktea Based (4), Weekend Cocktails (5 source images; 4 displayed).
 - `public/Foods-Snacks/`: all six snack images supplied.
 - Preserve the supplied playful product spellings; filenames include many hot/iced price labels.
-- Owner confirmed Affogato in both Coffee Based and Weekend Cocktails; both use the reference poster's ₱140.
+- Owner approved Affogato in Coffee Based at ₱140; it was later removed from Weekend Drinks on 2026-11-08.
 - Read all three images in `public/Menu Reference Price/`; recorded prices, cup sizes, and filename conflicts in `docs/menu-content.md`.
-- Four snack prices and some drink sizes are still unknown and omitted; see content notes.
-- All 37 assets reviewed and prepared. Many cup images are only 37–71px wide; preserve originals and request higher-resolution replacements for sharp large cards.
-- Current `public/` assets are untracked locally; owner should include them in the next manual Git commit.
+- All six snack prices are owner-approved: Tsuros ₱100 (5 pieces), Fries ₱135, AshBrawn ₱140 (3 pieces), NaChoz ₱185, Waffles ₱105, Oberload Fries ₱165. Unknown drink sizes remain omitted.
+- Replacement product artwork is present: 37 WebPs, 36 displayed. Current on-disk audit: minimum width 1200px, minimum height 811px, no files below 400px wide. All 37 files total 12,084,294 bytes; this is asset inventory size, not initial page transfer.
+- Replacement and renamed assets must be included in the owner's next manual Git commit; preserve exact filename casing.
 
 ### Waffles — owner-supplied options
 
@@ -105,24 +120,24 @@ Transcribed from the supplied waffle menu image:
 
 - **Syrup:** Chocolate, Caramel, Strawberry, Matcha.
 - **Toppings:** Almond, Oreo, Biscoff, Choco Chips.
-- **Price note:** ₱20 for additional toppings.
+- **Original source price note:** ₱20 for additional toppings. This note has subsequently been removed from `menu.ts`; tests still expect it and need reconciliation with the intended content.
 
-Present these as readable information with Waffles, not ordering controls. The image does not specify how many toppings are included or whether ₱20 is per topping; do not infer either rule. The subsequently supplied full reference poster gives a waffle base price of ₱105 and Fries at ₱135 (Cheese, Barbeque, Sour Cream).
+Present options as readable information with Waffles, not ordering controls. Do not infer included quantities or a per-topping charge. Waffles retains its ₱105 base price and Fries ₱135 (Cheese, Barbeque, Sour Cream).
 
-**Phase 2 status:** Content transcription and asset preparation complete. Image-quality acceptance/replacements and the two Figma/design-approval tasks remain open.
+**Phase 2 status:** Updated content and replacement artwork are present. Visual approval is marked complete by the owner. Direct browser implementation superseded separate Figma review. The waffle surcharge removal remains a content/test reconciliation item.
 
 ## Phase 3 — Create typed local menu data
 
-- [x] Define `MenuProduct` with `id`, `name`, `image`, `alt`, optional `priceLabel`, and optional `description` in `src/data/menu.ts`.
+- [x] Define `MenuProduct` with `id`, `name`, `image`, `alt`, and optional `priceLabel`, `piecesLabel`, `options`, and `description` in `src/data/menu.ts`.
 - [x] Define `MenuCategory` with `id`, `title`, `section`, and `products`; sections are `drinks`, `snacks`, and `weekend-cocktails`.
 - [x] Export `menuCategories` with four Drinks categories, one Snacks category, and one Weekend Drinks category.
 - [x] Populate approved data and verify every referenced image exists.
-- [x] Check category counts, unique IDs, six snack entries, and five weekend entries with a focused data validation check.
+- [x] Check category counts, unique IDs, six snack entries, and four weekend entries with a focused data validation check.
 - [x] Keep unfinished categories out of public release until all six can ship with approved content (all six are populated; unknown prices are omitted).
 
 **Done when:** All six collections are ready and a data edit updates the corresponding card after rebuilding.
 
-**Phase 3 status:** Complete: 37 entries in six collections. Phase 5 connected the data to cards; static-output checks verify all 37 render.
+**Phase 3 status:** Complete: 36 entries in six collections. Phase 5 connected the data to cards; static-output checks verify all 36 render.
 
 ## Phase 4 — Build navigation and page layout
 
@@ -152,7 +167,7 @@ Present these as readable information with Waffles, not ordering controls. The i
 
 **Done when:** All six sliders work independently and cards remain readable across supported widths.
 
-**Phase 5 status:** Complete. Twelve Chromium browser tests cover independent arrows/keyboard, emulated touch swipe, desktop fit/resize controls, six viewport widths, reduced motion, automated accessibility, and no-JavaScript browsing. Real-device acceptance remains Phase 8.
+**Phase 5 status:** Implemented. Browser coverage includes independent arrows/keyboard, emulated touch swipe, desktop fit/resize, six viewport widths, snack captions, visible-card counters, scroll-synced navigation, reduced motion, accessibility, and no-JavaScript browsing. Latest focused checks pass; six checks in the last full browser run failed only on the removed waffle surcharge expectation.
 
 ## Phase 6 — Verify QR routes and static output
 
@@ -164,7 +179,7 @@ Present these as readable information with Waffles, not ordering controls. The i
 
 **Done when:** The exported menu is ready for the owner's deployment.
 
-**Phase 6 status:** Complete. Fresh static build verified on a local static server (`http://localhost:3001`). Both `/` and `/menu` return HTTP 200 on direct load and refresh, render 37 cards, and initialize six sliders. All 37 product images plus the logo decode successfully; favicon returns HTTP 200 with an image MIME type; DM Sans and Fraunces load from local exported assets. No browser runtime errors or failed resource responses occurred. No application/configuration changes were needed for this phase. Production-domain and real-phone checks remain owner launch tasks.
+**Phase 6 status:** Complete. Fresh static build verified on a local static server (`http://localhost:3001`). Both `/` and `/menu` return HTTP 200 on direct load and refresh, render 36 cards, and initialize six sliders. All 36 displayed product images plus the logo decode successfully; favicon returns HTTP 200 with an image MIME type; DM Sans and Fraunces load from local exported assets. No browser runtime errors or failed resource responses occurred. No application/configuration changes were needed for this phase. Production-domain and real-phone checks remain owner launch tasks.
 
 ## Phase 7 — Manual GitHub, Cloudflare, and QR launch
 
@@ -173,28 +188,28 @@ Present these as readable information with Waffles, not ordering controls. The i
 - [x] Create/connect the GitHub repository and push the reviewed project manually.
 - [x] Connect that repository to Cloudflare Pages manually.
 - [x] Set production branch, build command `npm run build`, and output folder `out`.
-- [ ] Verify the production `/menu` and `/` routes on a real phone.
+- [x] Verify the production `/menu` and `/` routes on a real phone.
 - [x] Choose the permanent production domain before generating a QR: `https://calle-cafe.pages.dev`.
 - [x] Generate a static QR that directly encodes the final HTTPS `/menu` URL.
-- [ ] Scan with Android and iPhone cameras before printing; include the readable domain alongside the QR.
+- [x] Scan with Android and iPhone cameras before printing; include the readable domain alongside the QR.
 
-**Phase 7 status:** Owner selected the production domain. The automated desktop browser confirmed both production routes return HTTP 200 on direct load and refresh, render 37 cards, initialize all six sliders, and respond to slider controls. A 1024×1024 high-error-correction QR was generated from `https://calle-cafe.pages.dev/menu` as `public/calle-menu-qr.svg` (print) and `public/calle-menu-qr.png` (preview/share); automated decoding returns the exact URL. Print the domain `calle-cafe.pages.dev/menu` beside the QR. Real Android/iPhone camera scans remain required before printing. The QR files are included in the next static build; the current live site receives them only after the owner's next manual push/deploy.
+**Phase 7 status:** Owner tasks, including real-phone route checks and Android/iPhone scans, are marked complete in this checklist. The QR targets `https://calle-cafe.pages.dev/menu`; assets are `public/calle-menu-qr.svg` (print) and `public/calle-menu-qr.png` (preview/share). Prior automated production checks are recorded below and are not verification of the latest local changes. Latest deployment status was not rechecked by the assistant; pushes and deployments remain owner actions.
 
 **Done when:** The live menu and printed QR work on real devices.
 
 ## Phase 8 — Final acceptance and maintenance handoff
 
-- [x] Verify the 37-product inventory, names, price labels, descriptions, unique IDs, alt text, and image references against supplied content.
-- [ ] Owner visual approval of photos: replace the 32 low-resolution drink/snack files before launch.
-- [x] Verify exactly four Drinks sliders, one six-item Snacks slider, and one five-item Weekend Drinks slider.
+- [x] Verify the 36-product inventory, names, price labels, descriptions, unique IDs, alt text, and image references against supplied content.
+- [x] Owner visual approval of photos: replace the 32 low-resolution drink/snack files before launch.
+- [x] Verify exactly four Drinks sliders, one six-item Snacks slider, and one four-item Weekend Drinks slider.
 - [x] Check widths 320, 375, 390, 430, 768, and 1440px.
 - [x] Check keyboard navigation, focus, contrast, alt text, reduced motion, and touch targets.
 - [x] Check slow mobile loading, image compression, deferred off-screen images, and layout shifts.
 - [x] Confirm there are no ordering/account controls or unfinished public content.
-- [ ] Owner: perform a subsequent deployment and confirm the same QR still works.
+- [x] Owner: perform a subsequent deployment and confirm the same QR still works.
 - [x] Document product update steps: edit local data/photos, run checks, manually commit/push, and verify the deployed result.
 
-**Phase 8 status:** Automated acceptance is complete; launch acceptance is not. A throttled local-static check measured FCP/LCP 1208 ms, CLS 0, 368 KB initial transfer, no horizontal overflow, and deferred off-screen images (13 of 38 loaded before scrolling; weekend images did not load until viewed). The 13-test browser suite covers widths, independent sliders, keyboard, focus, contrast, alt text, reduced motion, 44 px touch targets, no ordering/account controls, and no unfinished copy. Image preparation now preserves masters up to 1200×1500; the five weekend photos were regenerated at 1200 px, raising prepared assets to about 724 KiB. The remaining 32 drink/snack files are still 37–303 px wide, so owner visual approval and replacement art stay open. Owner deployment, real-phone QR scans, and QR stability after redeploy also remain open.
+**Phase 8 status:** Owner acceptance tasks are marked complete as recorded above. Replacement artwork resolves the earlier low-resolution file gap. Current automated acceptance is not fully green: waffle surcharge assertions conflict with the current data. The historical 1208 ms FCP/LCP, CLS 0, and 368 KB initial transfer measurements predate larger replacements and must not be used as current performance results. Latest build and focused interaction/accessibility checks pass; full-suite reconciliation and a fresh mobile-load measurement remain open.
 
 **Done when:** Acceptance checks pass and the owner can update the menu without changing the QR URL.
 
@@ -286,6 +301,13 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 | 2026-11-08 | Phase 8 throttled load | Local static export, Slow-4G mobile: FCP/LCP 1208 ms, CLS 0, 368 KB initial transfer, 25 resources, no horizontal overflow; 36 lazy/2 eager images, 13 loaded before scrolling; weekend images deferred until viewed |
 | 2026-11-08 | Phase 8 image pipeline | Output cap raised to 1200×1500; five weekend photos regenerated at 1200 px; 32 drink/snack sources remain below 400 px wide |
 | 2026-11-08 | Phase 8 image quality gap | First coffee image is 37 px wide but renders at 302 CSS px; replacement artwork remains required |
+| 2026-11-08 | Weekend header and inventory update | “Weekend Cocktails” stays on one line at 320/375/390/430 px with 44 px targets; Weekend Affogato removed (36 cards; counts 7/4/11/4/6/4); normal-motion anchor scrolling verified; lint, typecheck, build, 8 data/export/QR tests, and 13 browser tests pass |
+| 2026-11-08 | Welcome and header refinement | Welcome note stacked under the heading at 320–1440 px, 14/15 px with an inline 20 px cat mark; 320 px uses a deliberate two-line break; header tagline removed; mobile welcome padding 20/24 px, section top 24 px, section-intro bottom 20 px; first price starts at 828 px on a 390×844 viewport; lint, typecheck, build, 8 data/export tests, and 14 browser tests pass |
+| 2026-11-08 | Snack data and captions | Fixed positional price mapping with named optional details; approved six snack prices, quantities, semantic option groups, and exact image casing. At completion: lint, typecheck, build, 9 data/static/QR tests, and 15 browser tests passed; phone/desktop captions visually checked |
+| 2026-11-08 | Slider numbering | Full-card ranges verified at 390/768/1440px, including end positions and resizing. Last full browser run: 10 passed, 6 failed on the subsequently removed waffle surcharge; no slider-counter failures |
+| 2026-11-08 | Selected-tab styling and instruction removal | Espresso selected tab with cream text; removed slider instructions and retained six right-aligned counters. Lint and three focused browser checks passed |
+| 2026-11-08 | Scroll-synced navigation | Selected tab follows downward/upward scrolling at 390/768/1440px regardless of URL hash. Added 1px rounding tolerance at anchor boundaries; regression test passed. Lint, typecheck, and latest build passed; keyboard/reduced-motion and accessibility checks passed |
+| 2026-11-08 | Checklist reconciliation | Verified current artwork inventory: 37 WebPs, 12,084,294 bytes, minimum width 1200px. Confirmed waffle note absent in data but still asserted in three test files. Preserved owner completion marks; no new full-suite, performance, deployment, or physical-device verification claimed |
 
 ### Phase 4–5 execution notes
 
@@ -295,8 +317,8 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 - Preserved an HTML/native horizontal-scroll fallback before hydration or with JavaScript disabled.
 - Fonts use Next.js self-hosted Google font output; build-time font retrieval requires network access.
 - README contained an appended UTF-16 duplicate heading mixed into UTF-8 text. Normalized it to UTF-8 while updating setup/testing instructions.
-- Low-resolution source artwork remains visible as supplied; larger originals are still needed for sharp large cards.
+- The original low-resolution artwork was subsequently replaced; current dimensions are recorded in the latest reconciliation above.
 
 **Phase 1 status:** Complete. Local foundation verified and owner's first Git checkpoint `6a2746f` confirmed. Owner reports GitHub setup complete.
 
-Phases 3–8 are implemented and verified locally; Phase 8 automated acceptance passes. Launch acceptance remains blocked on replacement drink/snack artwork, owner visual approval, a subsequent deployment, and real-device QR scans. This iteration has not been committed, pushed, or deployed by the assistant.
+Phases 3–8 are implemented. Owner launch/visual checks are marked complete in this checklist; the assistant has not independently repeated them for the latest changes. Remaining local work: reconcile waffle surcharge expectations, rerun full suites, and remeasure loading with replacement artwork. Local HEAD remains `7bfac42`; later changes have not been committed, pushed, or deployed by the assistant.
