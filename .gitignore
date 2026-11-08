@@ -3,6 +3,8 @@ node_modules/
 out/
 coverage/
 .playwright-mcp/
+test-results/
+playwright-report/
 *.tsbuildinfo
 next-env.d.ts
 .env*
@@ -10,3 +12,7 @@ next-env.d.ts
 *.pem
 npm-debug.log*
 .DS_Store
+
+# MD files
+CALLE_CAFE_COZY_EDITORIAL_QR_MENU_DESIGN_GUIDE.md
+CALLE_CAFE_QR_PRODUCT_SLIDERS_PHASED_PLAN.md
