@@ -14,7 +14,13 @@ for (const route of ["index", "menu"]) {
     }
     assert.equal((html.match(/data-product-id=/g) || []).length, 36);
     assert.equal((html.match(/data-slider-id=/g) || []).length, 6);
-    assert.match(html, /₱20 for additional toppings/);
+    assert.equal((html.match(/class="product-price"/g) || []).length, 42);
+    assert.equal((html.match(/class="option-chip"/g) || []).length, 15);
+    assert.equal((html.match(/class="card-meta"/g) || []).length, 32);
+    assert.match(html, /Hot · 10 oz/);
+    assert.match(html, /Iced · 16 oz/);
+    assert.doesNotMatch(html, /₱20 for additional toppings/);
+    assert.match(html, /Biscoff/);
     assert.doesNotMatch(html, /Our menu is being prepared/);
   });
 }

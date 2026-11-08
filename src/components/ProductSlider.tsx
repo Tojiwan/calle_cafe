@@ -13,6 +13,7 @@ import "swiper/css/a11y";
 type Props = { id: string; title: string; products: MenuProduct[] };
 
 export default function ProductSlider({ id, title, products }: Props) {
+  const editorial = id !== "weekend-cocktails";
   const swiperRef = useRef<SwiperInstance | null>(null);
   const [position, setPosition] = useState({ beginning: true, end: false, locked: false, first: 1, last: 1, ready: false });
 
@@ -50,7 +51,7 @@ export default function ProductSlider({ id, title, products }: Props) {
 
   return (
     <section
-      className="product-slider"
+      className={`product-slider${editorial ? " product-slider--editorial" : ""}`}
       id={id === "snacks" || id === "weekend-cocktails" ? `${id}-products` : id}
       aria-labelledby={`${id}-title`}
       data-slider-id={id}
@@ -98,11 +99,16 @@ export default function ProductSlider({ id, title, products }: Props) {
       >
         {products.map((product, index) => (
           <SwiperSlide key={product.id}>
-            <ProductCard product={product} priority={id === "coffee-based" && index === 0} />
+            <ProductCard product={product} kind={!editorial ? "weekend" : id === "snacks" ? "snack" : "drink"} index={index} total={products.length} priority={id === "coffee-based" && index === 0} />
           </SwiperSlide>
         ))}
       </Swiper>
       <div className="slider-footnote">
+        {editorial && (
+          <div className="slider-progress" aria-hidden="true" hidden={!position.ready}>
+            <div className="slider-progress-fill" style={{ width: `${Math.min(1, position.last / products.length) * 100}%` }} />
+          </div>
+        )}
         <span className="slider-position" role="status" aria-live="polite" aria-atomic="true" aria-label={`${title}: ${position.first === position.last ? `product ${position.first}` : `products ${position.first} through ${position.last}`} of ${products.length}`}>
           {String(position.first).padStart(2, "0")}{position.last !== position.first && `–${String(position.last).padStart(2, "0")}`} <span aria-hidden="true">/</span> {String(products.length).padStart(2, "0")}
         </span>

@@ -12,6 +12,7 @@ next-env.d.ts
 *.pem
 npm-debug.log*
 .DS_Store
+.claude
 
 # MD files
 CALLE_CAFE_COZY_EDITORIAL_QR_MENU_DESIGN_GUIDE.md

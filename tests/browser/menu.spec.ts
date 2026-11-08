@@ -46,6 +46,7 @@ test("touch swipe advances coffee without moving matcha", async ({ page, context
   const track = page.locator("#coffee-based-track");
   await track.scrollIntoViewIfNeeded();
   const box = (await track.boundingBox())!;
+  const initialProgress = await page.locator('#coffee-based .slider-progress-fill').getAttribute('style');
   const session = await context.newCDPSession(page);
   const y = box.y + Math.min(100, box.height / 2);
   await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: box.x + 270, y }] });
@@ -55,6 +56,7 @@ test("touch swipe advances coffee without moving matcha", async ({ page, context
   await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await expect(page.locator('[data-slider-id="coffee-based"]').getByRole("status")).toHaveText(/^02/);
   await expect(page.locator('[data-slider-id="matcha-series"]').getByRole("status")).toHaveText(/^01/);
+  await expect(page.locator('#coffee-based .slider-progress-fill')).not.toHaveAttribute('style', initialProgress!);
   await session.detach();
 });
 
@@ -109,7 +111,8 @@ for (const width of [320, 375, 390, 430, 768, 1440]) {
       expect(heading!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
     }
     await expect(page.locator('[data-product-id="churros"] .product-price')).toHaveText("₱100");
-    await expect(page.locator('[data-product-id="waffles"]')).toContainText("₱20 for additional toppings");
+    await expect(page.locator('[data-product-id="waffles"]')).not.toContainText("₱20 for additional toppings");
+    await expect(page.locator('[data-product-id="waffles"]')).toContainText("Biscoff");
     const longName = page.locator('[data-product-id="blueberry-peach-cocktail"] h4');
     expect(await longName.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   });
@@ -128,7 +131,7 @@ test("snack captions show approved prices, quantities, and readable options", as
       return price.left >= name.right && Math.abs(price.top - name.top) < 10 && caption.scrollWidth <= caption.clientWidth;
     }));
     expect(captionsFit).toBe(true);
-    await expect(page.locator('.product-price')).toHaveCount(36);
+    await expect(page.locator('.product-price')).toHaveCount(42);
   }
 });
 
@@ -231,6 +234,9 @@ test("static menu remains readable and scrollable without JavaScript", async ({ 
   const page = await context.newPage();
   await page.goto("http://localhost:3000/menu");
   await expect(page.locator("[data-product-id]")).toHaveCount(36);
+  await expect(page.locator('.product-price')).toHaveCount(42);
+  await expect(page.locator('.option-chip')).toHaveCount(15);
+  await expect(page.locator('.slider-progress').first()).toBeHidden();
   const track = page.locator("#coffee-based-track");
   expect(await track.evaluate((element) => getComputedStyle(element).overflowX)).toBe("auto");
   await track.evaluate((element) => { element.scrollLeft = element.scrollWidth; });
