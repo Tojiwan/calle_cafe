@@ -174,22 +174,27 @@ Present these as readable information with Waffles, not ordering controls. The i
 - [x] Connect that repository to Cloudflare Pages manually.
 - [x] Set production branch, build command `npm run build`, and output folder `out`.
 - [ ] Verify the production `/menu` and `/` routes on a real phone.
-- [ ] Choose the permanent production domain before generating a QR.
-- [ ] Generate a static QR that directly encodes the final HTTPS `/menu` URL.
+- [x] Choose the permanent production domain before generating a QR: `https://calle-cafe.pages.dev`.
+- [x] Generate a static QR that directly encodes the final HTTPS `/menu` URL.
 - [ ] Scan with Android and iPhone cameras before printing; include the readable domain alongside the QR.
+
+**Phase 7 status:** Owner selected the production domain. The automated desktop browser confirmed both production routes return HTTP 200 on direct load and refresh, render 37 cards, initialize all six sliders, and respond to slider controls. A 1024×1024 high-error-correction QR was generated from `https://calle-cafe.pages.dev/menu` as `public/calle-menu-qr.svg` (print) and `public/calle-menu-qr.png` (preview/share); automated decoding returns the exact URL. Print the domain `calle-cafe.pages.dev/menu` beside the QR. Real Android/iPhone camera scans remain required before printing. The QR files are included in the next static build; the current live site receives them only after the owner's next manual push/deploy.
 
 **Done when:** The live menu and printed QR work on real devices.
 
 ## Phase 8 — Final acceptance and maintenance handoff
 
-- [ ] Verify all approved products, photos, names, and displayed prices.
-- [ ] Verify exactly four Drinks sliders, one six-item Snacks slider, and one five-item Weekend Drinks slider.
-- [ ] Check widths 320, 375, 390, 430, 768, and 1440px.
-- [ ] Check keyboard navigation, focus, contrast, alt text, reduced motion, and touch targets.
-- [ ] Check slow mobile loading, image compression, deferred off-screen images, and layout shifts.
-- [ ] Confirm there are no ordering/account controls or unfinished public content.
+- [x] Verify the 37-product inventory, names, price labels, descriptions, unique IDs, alt text, and image references against supplied content.
+- [ ] Owner visual approval of photos: replace the 32 low-resolution drink/snack files before launch.
+- [x] Verify exactly four Drinks sliders, one six-item Snacks slider, and one five-item Weekend Drinks slider.
+- [x] Check widths 320, 375, 390, 430, 768, and 1440px.
+- [x] Check keyboard navigation, focus, contrast, alt text, reduced motion, and touch targets.
+- [x] Check slow mobile loading, image compression, deferred off-screen images, and layout shifts.
+- [x] Confirm there are no ordering/account controls or unfinished public content.
 - [ ] Owner: perform a subsequent deployment and confirm the same QR still works.
-- [ ] Document product update steps: edit local data/photos, run checks, manually commit/push, and verify the deployed result.
+- [x] Document product update steps: edit local data/photos, run checks, manually commit/push, and verify the deployed result.
+
+**Phase 8 status:** Automated acceptance is complete; launch acceptance is not. A throttled local-static check measured FCP/LCP 1208 ms, CLS 0, 368 KB initial transfer, no horizontal overflow, and deferred off-screen images (13 of 38 loaded before scrolling; weekend images did not load until viewed). The 13-test browser suite covers widths, independent sliders, keyboard, focus, contrast, alt text, reduced motion, 44 px touch targets, no ordering/account controls, and no unfinished copy. Image preparation now preserves masters up to 1200×1500; the five weekend photos were regenerated at 1200 px, raising prepared assets to about 724 KiB. The remaining 32 drink/snack files are still 37–303 px wide, so owner visual approval and replacement art stay open. Owner deployment, real-phone QR scans, and QR stability after redeploy also remain open.
 
 **Done when:** Acceptance checks pass and the owner can update the menu without changing the QR URL.
 
@@ -274,6 +279,13 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 | 2026-11-08 | Phase 6 fresh quality gates | `npm run lint`, `npm run typecheck`, `npm run build`, and `npm test` pass (6/6 tests) |
 | 2026-11-08 | Phase 6 static route/asset checks | `/` and `/menu`: direct load + refresh HTTP 200; 37 cards, 6 initialized sliders, 38 decoded images, favicon HTTP 200, both fonts loaded locally; slider controls work |
 | 2026-11-08 | Phase 6 browser errors | Zero page errors and zero failed resource responses during both route checks |
+| 2026-11-08 | Phase 7 production routes | `https://calle-cafe.pages.dev/` and `/menu`: direct load and refresh HTTP 200; 37 cards, 6 initialized sliders; every slider's Next control advances |
+| 2026-11-08 | Phase 7 QR generation | 1024×1024 PNG and SVG, error correction H; automated decode returns exactly `https://calle-cafe.pages.dev/menu`; both files served from static export with correct image types |
+| 2026-11-08 | Phase 7 quality gates | Lint, typecheck, build, and all 8 tests pass (including QR decode and SVG checks) |
+| 2026-11-08 | Phase 8 browser acceptance | 13/13 Chromium tests pass; 37 cards; category counts 7/4/11/4/6/5; all widths; no forbidden controls; all visible targets ≥44 px; all 38 images have alt text |
+| 2026-11-08 | Phase 8 throttled load | Local static export, Slow-4G mobile: FCP/LCP 1208 ms, CLS 0, 368 KB initial transfer, 25 resources, no horizontal overflow; 36 lazy/2 eager images, 13 loaded before scrolling; weekend images deferred until viewed |
+| 2026-11-08 | Phase 8 image pipeline | Output cap raised to 1200×1500; five weekend photos regenerated at 1200 px; 32 drink/snack sources remain below 400 px wide |
+| 2026-11-08 | Phase 8 image quality gap | First coffee image is 37 px wide but renders at 302 CSS px; replacement artwork remains required |
 
 ### Phase 4–5 execution notes
 
@@ -287,4 +299,4 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 
 **Phase 1 status:** Complete. Local foundation verified and owner's first Git checkpoint `6a2746f` confirmed. Owner reports GitHub setup complete.
 
-Phases 3–6 are implemented and locally verified. Owner marked GitHub/Cloudflare setup complete; this iteration has not been deployed by the assistant. Visual approval, higher-resolution imagery, production-domain verification, and real-device QR testing remain open.
+Phases 3–8 are implemented and verified locally; Phase 8 automated acceptance passes. Launch acceptance remains blocked on replacement drink/snack artwork, owner visual approval, a subsequent deployment, and real-device QR scans. This iteration has not been committed, pushed, or deployed by the assistant.

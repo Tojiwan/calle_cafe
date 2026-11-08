@@ -86,6 +86,45 @@ test("reduced-motion preference and keyboard focus are respected", async ({ page
   expect(await track.locator(".swiper-wrapper").evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 });
 
+test("final acceptance: inventory, touch targets, and view-only controls", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("[data-slider-id]")).toHaveCount(6);
+  await expect(page.locator("[data-product-id]")).toHaveCount(37);
+
+  const categoryCounts = await page.locator("[data-slider-id]").evaluateAll((sliders) =>
+    sliders.map((slider) => [slider.getAttribute("data-slider-id"), slider.querySelectorAll("[data-product-id]").length]),
+  );
+  expect(categoryCounts).toEqual([
+    ["coffee-based", 7], ["matcha-series", 4], ["fruit-series", 11],
+    ["milktea-based", 4], ["snacks", 6], ["weekend-cocktails", 5],
+  ]);
+
+  const result = await page.evaluate(() => {
+    const forbidden = /\b(cart|checkout|order|buy|login|log in|sign in|account|admin|payment)\b/i;
+    const visible = [...document.querySelectorAll("a, button")].filter((element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return rect.width > 0 && rect.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+    });
+    return {
+      sectionIds: [...document.querySelectorAll("main > section[id]")].map((section) => section.id),
+      forbiddenText: document.body.innerText.match(forbidden)?.[0] ?? null,
+      undersizedTargets: visible.filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      }).map((element) => element.getAttribute("aria-label") ?? element.textContent?.trim()),
+      missingAlt: [...document.images].filter((image) => !image.alt.trim()).map((image) => image.src),
+    };
+  });
+
+  expect(result.sectionIds).toEqual(["drinks", "snacks", "weekend-cocktails"]);
+  expect(result.forbiddenText).toBeNull();
+  expect(result.undersizedTargets).toEqual([]);
+  expect(result.missingAlt).toEqual([]);
+  await expect(page.locator(".product-media img").first()).toHaveAttribute("loading", "eager");
+  await expect(page.locator('.product-media img[loading="lazy"]')).toHaveCount(36);
+});
+
 test("menu has no runtime errors or automated accessibility violations", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));

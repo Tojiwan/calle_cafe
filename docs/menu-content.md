@@ -1,4 +1,4 @@
-# Menu content handoff — Phases 2–3
+# Menu content and image handoff
 
 ## Source priority
 
@@ -53,15 +53,19 @@ No product labels or prices were visible baked into the prepared product images.
 `npm run prepare:images` creates normalized WebP copies under
 `public/images/products/<category>/`, plus a 512px brand asset at
 `public/images/branding/calle-logo.webp`. It preserves the originals, caps
-products at 640×800, and never upscales or crops products. The 37 prepared
-product files total **365,476 bytes** in the initial run.
+products at 1200×1500, and never upscales or crops products. The 37 prepared
+product files total **740,932 bytes** (about 724 KiB); the five weekend photos
+were regenerated at 1200 px from their 2048/2510 px sources. The other 32 files
+remain below 400 px wide and need replacement source art.
 
-Use a consistent 4:5 media container with `object-fit: contain` in Phase 5 to
-keep cups and landscape snacks intact. The file dimensions intentionally retain
-their original proportions. Higher-resolution replacements are needed for sharp
-large cards; recompression cannot recover missing detail. Original files and
-price posters remain in `public/` and therefore in static exports, but product
-cards must reference only the optimized image paths.
+Use a consistent 4:5 media container with `object-fit: contain` to keep cups and
+landscape snacks intact. The file dimensions intentionally retain their original
+proportions. For replacements, provide **1200×1500 px, 4:5** drink/snack art
+(**1200×1200 px** weekend photos if keeping the current square presentation).
+Higher-resolution replacements are required for sharp large cards;
+recompression cannot recover missing detail. Original files and price posters
+remain in `public/` and therefore in static exports, but product cards must
+reference only the optimized image paths.
 
 ## Design handoff
 
@@ -80,4 +84,5 @@ IDs in its two categories. Missing prices/descriptions remain optional.
 price conflicts, cup sizes, omitted unknown values, and waffle/fries options.
 The data now renders through `ProductCard` and six independent `ProductSlider`
 instances on both routes. Static-export tests verify all 37 cards and six sliders
-exist in the generated HTML. Browser tests cover navigation and interaction.
+exist in the generated HTML. Browser tests cover navigation, independent
+interaction, touch targets, deferred images, and accessibility.

@@ -26,9 +26,9 @@ for (const [source, category] of categories) {
     const input = path.join(root, source, file);
     const metadata = await sharp(input).metadata();
     const output = await sharp(input).rotate()
-      .resize({ width: 640, height: 800, fit: "inside", withoutEnlargement: true })
+      .resize({ width: 1200, height: 1500, fit: "inside", withoutEnlargement: true })
       .webp({ quality: 82 }).toFile(path.join(destination, `${slug}.webp`));
-    assert.ok(output.width <= 640 && output.height <= 800);
+    assert.ok(output.width <= 1200 && output.height <= 1500);
     assert.ok(output.width <= metadata.width && output.height <= metadata.height);
     count++;
   }
