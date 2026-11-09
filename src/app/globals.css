@@ -530,6 +530,19 @@ a {
 }
 
 .card-options summary::-webkit-details-marker { display: none; }
+.card-options:not([open]) summary::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 52px;
+  z-index: 1;
+  border-radius: 16px;
+}
+
+.card-options:not([open]) summary:focus-visible::before {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 .options-close-label, .card-options[open] .options-open-label { display: none; }
 .card-options[open] .options-close-label { display: inline; }
 
@@ -539,6 +552,7 @@ a {
 }
 
 .card-back {
+  cursor: pointer;
   position: absolute;
   inset: 0 0 52px;
   overflow-y: auto;

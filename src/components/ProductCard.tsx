@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import type { MenuProduct } from "@/data/menu";
 
@@ -12,6 +14,7 @@ type Props = {
 export default function ProductCard({ product, kind, index, total, priority = false }: Props) {
   const editorial = kind !== "weekend";
   const itemNumber = `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+  const optionsPrompt = product.options?.map((option) => option.label.toLowerCase()).join(" and ");
   return (
     <article className={`product-card${editorial ? ` editorial-card product-card--${kind}` : ""}`} data-product-id={product.id}>
       <div className="product-surface">
@@ -58,10 +61,15 @@ export default function ProductCard({ product, kind, index, total, priority = fa
         {product.options && (
           <details className="card-options">
             <summary>
-              <span className="options-open-label">Click for more options</span>
+              <span className="options-open-label">Click to see {optionsPrompt}</span>
               <span className="options-close-label">Back to item</span>
             </summary>
-            <div className="card-back">
+            <div className="card-back" onClick={(event) => {
+              if (window.getSelection()?.toString()) return;
+              const toggle = event.currentTarget.closest('details')?.querySelector('summary');
+              toggle?.click();
+              toggle?.focus({ preventScroll: true });
+            }}>
               <p className="options-name">{product.name}</p>
               <dl className="product-options">
             {product.options.map((option) => (

@@ -24,6 +24,9 @@ test("unified cards separate real variants and keep snack chips informational", 
   await expect(page.locator('[data-product-id="nachos"] .product-options')).toHaveCount(0);
   await expect(waffles.locator('.product-surface .product-options')).toHaveCount(0);
   await expect(waffles.locator('.card-back .product-options')).toHaveCount(1);
+  await expect(waffles.locator('summary .options-open-label')).toHaveText("Click to see syrup options and toppings");
+  await expect(page.locator('[data-product-id="churros"] summary .options-open-label')).toHaveText("Click to see dip options");
+  await expect(page.locator('[data-product-id="fries"] summary .options-open-label')).toHaveText("Click to see flavor options");
   expect(await waffles.locator('.product-media').evaluate(el => getComputedStyle(el).aspectRatio)).toBe('4 / 3');
   await expect(page.locator(".product-price")).toHaveCount(42);
   const priceBottoms = await page.locator('#coffee-based .product-card').evaluateAll(cards => cards.map(card => {
@@ -39,6 +42,7 @@ test("snack options flip with keyboard and pointer without moving the slider", a
     const card = page.locator('[data-product-id="churros"]');
     const toggle = card.locator('summary');
     const counter = page.locator('[data-slider-id="snacks"] [role="status"]');
+    await expect(counter).toHaveText(width >= 1200 ? '01–04 / 06' : width >= 768 ? '01–02 / 06' : '01 / 06');
     const before = await counter.textContent();
     await expect(card.locator('.card-back')).toBeHidden();
     const height = (await card.boundingBox())!.height;
@@ -51,6 +55,12 @@ test("snack options flip with keyboard and pointer without moving the slider", a
     expect(Math.abs((await card.boundingBox())!.height - height)).toBeLessThan(1);
     await toggle.click();
     await expect(card.locator('.card-back')).toBeHidden();
+    await expect(card.locator('.product-surface')).toBeVisible();
+    const front = (await card.locator('.product-media').boundingBox())!;
+    await page.mouse.click(front.x + front.width / 2, front.y + front.height / 2);
+    await expect(card.locator('.card-back')).toBeVisible();
+    await card.locator('.option-chip').first().click();
+    await expect(toggle).toBeFocused();
     await expect(card.locator('.product-surface')).toBeVisible();
     await expect(page.locator('[data-product-id="nachos"] summary')).toHaveCount(0);
   }
