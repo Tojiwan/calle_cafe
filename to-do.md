@@ -22,7 +22,7 @@
 
 Local Git setup/checkpoint commands are also provided for the owner below. No remote repositories, pushes, or deployments should be performed by the assistant.
 
-### Latest reconciliation — 2026-11-08
+### Latest reconciliation — 2026-11-09
 
 - [x] Stack the welcome note at every width, add an inline cat mark, and remove the redundant header tagline.
 - [x] Apply the transparent header logo and updated product artwork.
@@ -32,10 +32,14 @@ Local Git setup/checkpoint commands are also provided for the owner below. No re
 - [x] Synchronize the selected tab with scrolling down/up using `aria-current="location"`.
 - [x] Remove slider instruction text while preserving right-aligned counters and keyboard controls.
 - [x] Confirm `out/` is ignored by Git; Cloudflare builds it from source.
-- [ ] Reconcile the removed waffle surcharge with data, static-export, and browser test expectations; then rerun the complete suites.
+- [x] Reconcile the removed waffle surcharge with data, static-export, and browser test expectations; then rerun the complete suites.
+- [x] Implement unified Drinks and Snacks cards, structured Hot/Iced prices, informational chips, and viewport-proportion slider indicators.
+- [x] Replace the moving indicator with a cumulative, left-anchored fill that reaches 100% at the final card. Restore natural snack card heights at the owner's subsequent request.
+- [x] Exclude Weekend Drinks from the redesign; retain its data, card appearance, slider widths, and counter-only footer.
+- [x] Verify all 36 current menu entries against a frozen content baseline, including exact image paths and unknown-size omissions.
 - [ ] Remeasure mobile loading after the artwork replacements; previous transfer/LCP figures describe the older assets.
 
-Owner-task completion marks below are preserved as recorded in this checklist, not claimed as newly performed by the assistant. Latest local build, lint, typecheck, scroll-sync, slider-counter, keyboard/reduced-motion, and accessibility checks passed. Full-suite acceptance is pending the waffle content/test mismatch.
+Owner-task completion marks below are preserved as recorded in this checklist, not claimed as newly performed by the assistant. Latest lint, typecheck, build, all 10 data/static/QR/asset checks, and all 22 Chromium browser tests pass. The fresh static export was checked at `/` and `/menu`, with and without JavaScript: all 36 products, 42 price values, 15 option chips, and 37 images are present and load without page overflow or runtime errors.
 
 ## Global constraints
 
@@ -120,15 +124,15 @@ Transcribed from the supplied waffle menu image:
 
 - **Syrup:** Chocolate, Caramel, Strawberry, Matcha.
 - **Toppings:** Almond, Oreo, Biscoff, Choco Chips.
-- **Original source price note:** ₱20 for additional toppings. This note has subsequently been removed from `menu.ts`; tests still expect it and need reconciliation with the intended content.
+- **Original source price note:** ₱20 for additional toppings. The owner removed this note from `menu.ts`; tests now preserve that omission and still verify the base price and all options.
 
 Present options as readable information with Waffles, not ordering controls. Do not infer included quantities or a per-topping charge. Waffles retains its ₱105 base price and Fries ₱135 (Cheese, Barbeque, Sour Cream).
 
-**Phase 2 status:** Updated content and replacement artwork are present. Visual approval is marked complete by the owner. Direct browser implementation superseded separate Figma review. The waffle surcharge removal remains a content/test reconciliation item.
+**Phase 2 status:** Updated content and replacement artwork are present. Visual approval is marked complete by the owner. Direct browser implementation superseded separate Figma review. The redesigned cards preserve current data, including the removed waffle surcharge.
 
 ## Phase 3 — Create typed local menu data
 
-- [x] Define `MenuProduct` with `id`, `name`, `image`, `alt`, and optional `priceLabel`, `piecesLabel`, `options`, and `description` in `src/data/menu.ts`.
+- [x] Define `MenuProduct` with `id`, `name`, `image`, `alt`, structured `prices`, optional `piecesLabel`, option arrays, and `description`; retain legacy `priceLabel` for excluded Weekend Drinks.
 - [x] Define `MenuCategory` with `id`, `title`, `section`, and `products`; sections are `drinks`, `snacks`, and `weekend-cocktails`.
 - [x] Export `menuCategories` with four Drinks categories, one Snacks category, and one Weekend Drinks category.
 - [x] Populate approved data and verify every referenced image exists.
@@ -167,7 +171,7 @@ Present options as readable information with Waffles, not ordering controls. Do 
 
 **Done when:** All six sliders work independently and cards remain readable across supported widths.
 
-**Phase 5 status:** Implemented. Browser coverage includes independent arrows/keyboard, emulated touch swipe, desktop fit/resize, six viewport widths, snack captions, visible-card counters, scroll-synced navigation, reduced motion, accessibility, and no-JavaScript browsing. Latest focused checks pass; six checks in the last full browser run failed only on the removed waffle surcharge expectation.
+**Phase 5 status:** Implemented and verified. All 22 browser tests pass, covering independent arrows/keyboard, touch swipe, normal-motion pointer drag, progress proportions/endpoints/resize, responsive cards at eight widths, price alignment, informational chips, scroll-synced navigation, accessibility, and no-JavaScript browsing. Weekend Drinks retains its existing treatment.
 
 ## Phase 6 — Verify QR routes and static output
 
@@ -209,7 +213,7 @@ Present options as readable information with Waffles, not ordering controls. Do 
 - [x] Owner: perform a subsequent deployment and confirm the same QR still works.
 - [x] Document product update steps: edit local data/photos, run checks, manually commit/push, and verify the deployed result.
 
-**Phase 8 status:** Owner acceptance tasks are marked complete as recorded above. Replacement artwork resolves the earlier low-resolution file gap. Current automated acceptance is not fully green: waffle surcharge assertions conflict with the current data. The historical 1208 ms FCP/LCP, CLS 0, and 368 KB initial transfer measurements predate larger replacements and must not be used as current performance results. Latest build and focused interaction/accessibility checks pass; full-suite reconciliation and a fresh mobile-load measurement remain open.
+**Phase 8 status:** Owner acceptance tasks are marked complete as recorded above. Current automated acceptance passes: 10 data/static/QR/asset checks and 22 browser tests. The fresh export works on both routes with and without JavaScript. The historical 1208 ms FCP/LCP, CLS 0, and 368 KB initial transfer measurements predate larger replacements and must not be used as current performance results. A fresh mobile-load measurement and physical-device review of the new design remain owner follow-up work.
 
 **Done when:** Acceptance checks pass and the owner can update the menu without changing the QR URL.
 
@@ -308,6 +312,9 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 | 2026-11-08 | Selected-tab styling and instruction removal | Espresso selected tab with cream text; removed slider instructions and retained six right-aligned counters. Lint and three focused browser checks passed |
 | 2026-11-08 | Scroll-synced navigation | Selected tab follows downward/upward scrolling at 390/768/1440px regardless of URL hash. Added 1px rounding tolerance at anchor boundaries; regression test passed. Lint, typecheck, and latest build passed; keyboard/reduced-motion and accessibility checks passed |
 | 2026-11-08 | Checklist reconciliation | Verified current artwork inventory: 37 WebPs, 12,084,294 bytes, minimum width 1200px. Confirmed waffle note absent in data but still asserted in three test files. Preserved owner completion marks; no new full-suite, performance, deployment, or physical-device verification claimed |
+| 2026-11-09 | Drinks/Snacks redesign | Owner excluded Weekend Drinks. Unified 32 cards with per-item indices, structured real price variants, snack portion headers and 15 informational chips. Five sliders have actual viewport-proportion indicators; Weekend retains its original cards/footer. No menu values or image files changed |
+| 2026-11-09 | Redesign verification | Lint, typecheck, production build, 10 data/static/QR/asset checks and 22 browser tests pass. Regression tests proved new data/card/progress contracts and corrected single-price alignment. Square snack framing is protected by transparent-margin checks; visual review covered phone/tablet/desktop and Weekend before/after |
+| 2026-11-09 | Fresh static export | Local static server on port 3002: `/` and `/menu` HTTP 200, both with and without JavaScript; 36 products, 42 prices, 15 chips, all 37 images decoded, no horizontal document overflow or runtime errors. Native horizontal scrolling works without JavaScript |
 
 ### Phase 4–5 execution notes
 
@@ -321,4 +328,4 @@ Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/deplo
 
 **Phase 1 status:** Complete. Local foundation verified and owner's first Git checkpoint `6a2746f` confirmed. Owner reports GitHub setup complete.
 
-Phases 3–8 are implemented. Owner launch/visual checks are marked complete in this checklist; the assistant has not independently repeated them for the latest changes. Remaining local work: reconcile waffle surcharge expectations, rerun full suites, and remeasure loading with replacement artwork. Local HEAD remains `7bfac42`; later changes have not been committed, pushed, or deployed by the assistant.
+Phases 3–8 and the approved Drinks/Snacks redesign are implemented and verified locally. Owner launch/visual checks are preserved as previously recorded; real-device/deployment checks were not repeated for this redesign. Remaining follow-up: mobile-load remeasurement and owner review/deployment of the new design. The implementation started from `ecc67d7`; redesign changes have not been committed, pushed, or deployed by the assistant.

@@ -14,6 +14,7 @@ export default function ProductCard({ product, kind, index, total, priority = fa
   const itemNumber = `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
   return (
     <article className={`product-card${editorial ? ` editorial-card product-card--${kind}` : ""}`} data-product-id={product.id}>
+      <div className="product-surface">
       {editorial && (
         <div className="card-meta">
           {kind === "snack" ? (
@@ -51,18 +52,28 @@ export default function ProductCard({ product, kind, index, total, priority = fa
             ))}
           </div>
         )}
+        {product.description && <p className="product-description">{product.description}</p>}
+      </div>
+      </div>
         {product.options && (
-          <dl className="product-options">
+          <details className="card-options">
+            <summary>
+              <span className="options-open-label">Click for more options</span>
+              <span className="options-close-label">Back to item</span>
+            </summary>
+            <div className="card-back">
+              <p className="options-name">{product.name}</p>
+              <dl className="product-options">
             {product.options.map((option) => (
               <div key={option.label}>
                 <dt>{option.label}</dt>
                 <dd><ul className="option-list">{option.values.map((value) => <li className="option-chip" key={value}>{value}</li>)}</ul></dd>
               </div>
             ))}
-          </dl>
+              </dl>
+            </div>
+          </details>
         )}
-        {product.description && <p className="product-description">{product.description}</p>}
-      </div>
     </article>
   );
 }

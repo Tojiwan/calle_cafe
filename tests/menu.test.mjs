@@ -79,17 +79,17 @@ test("all prices render as prices and unknown serving sizes remain absent", () =
   assert.deepEqual(find("milktea-based", "KUKIS N KRIM").prices, [{ label: "Iced", value: "₱115" }]);
 });
 
-test("square snack framing clips only transparent canvas margins", async () => {
+test("compact snack framing clips only transparent canvas margins", async () => {
   for (const product of menuCategories.find(({ id }) => id === "snacks").products) {
     const file = new URL(`../public${product.image}`, import.meta.url);
     const image = sharp(await readFile(file));
     const { width, height, hasAlpha } = await image.metadata();
     assert.equal(width / height, 4 / 5);
     assert.equal(hasAlpha, true);
-    const margin = Math.floor((height - width) / 2);
+    const margin = Math.floor(height / 6);
     for (const top of [0, height - margin]) {
       const alpha = await image.clone().extract({ left: 0, top, width, height: margin }).extractChannel(3).raw().toBuffer();
-      assert.ok(alpha.every(value => value === 0), `${product.name}: preserve all artwork inside the square frame`);
+      assert.ok(alpha.every(value => value === 0), `${product.name}: preserve all artwork inside the compact frame`);
     }
   }
 });

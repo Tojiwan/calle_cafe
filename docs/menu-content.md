@@ -33,7 +33,7 @@ options.
 - Owner approved the updated snack data: Tsuros ₱100 (5 pieces), Fries ₱135, AshBrawn ₱140 (3 pieces), NaChoz ₱185, Waffles ₱105, and Oberload Fries ₱165. This supersedes the earlier missing-price notes.
 - Tsuros dip options: Chocolate, Caramel, Strawberry, Matcha.
 - Confirm sizes for the four fruit teas, Kukis N Krim, Istroberi milktea, cocktails, and Affogato if sizes should be shown.
-- Waffle note is exactly “₱20 for additional toppings.” No assumption about included toppings or a per-topping charge.
+- The owner removed the waffle surcharge note from current data. Preserve that omission; tests explicitly verify it while retaining the ₱105 base price and all eight options.
 - Waffles: Chocolate, Caramel, Strawberry, Matcha syrups; Almond, Oreo, Biscoff, Choco Chips toppings.
 - Fries: Cheese, Barbeque, Sour Cream flavors.
 
@@ -85,10 +85,36 @@ Every card has a name, optimized image path, and alt text. Affogato remains only
 in Coffee Based; the Weekend Drinks entry was removed at owner request. Missing
 prices/descriptions remain optional.
 
-The `product` helper takes price as its fourth argument and named optional details
-as its fifth (`piecesLabel`, `options`, `description`). Quantities never occupy
-the price position. Snack captions show name and price together, quantity below,
-and semantic option groups as plain text. The waffle surcharge remains a separate note.
+The `product` helper takes price entries as its fourth argument and named optional
+details as its fifth (`piecesLabel`, `options`, `description`). Drinks and Snacks
+use `prices: { label?: string; value: string }[]`, for example:
+
+```ts
+[{ label: "Hot · 10 oz", value: "₱115" }, { label: "Iced · 16 oz", value: "₱160" }]
+```
+
+Use one entry for single-variant products; omit unknown labels/sizes. Snack option
+`values` are individual strings in an array, not a dot-separated sentence. These
+render as informational chips, never selectable controls. Snack quantities appear
+in the card header, and the name/price share a row.
+
+Weekend Drinks is explicitly excluded from the redesign. Its helper calls retain
+the original price string and `priceLabel` output, card styling, and slider footer.
+
+The four Drinks sliders and Snacks have unified warm-white cards and a left-anchored
+progress fill based on the last fully visible item divided by the total. The fill
+reaches 100% at the end and shrinks when navigating backward. Snack card surfaces
+use natural content heights, restored at the owner's request; Waffles can grow without stretching simpler cards.
+Widths target one card plus a preview on mobile,
+two at 768px, three at 1024px, and four at 1200px. Weekend sizing is unchanged.
+The existing 4:5 transparent snack canvases are centered in square panels; alpha
+tests prove that only transparent top/bottom margins fall outside the frame.
+For new artwork, preserve those transparent margins or revise framing and its test.
+
+`tests/fixtures/menu-content.json` captures all 36 pre-redesign entries. Tests
+normalize the new structure back to that baseline to protect every existing value.
+When approving future menu changes, update the fixture deliberately alongside the
+data; do not regenerate it automatically to silence a mismatch.
 Replacement asset filenames may contain uppercase letters and spaces; data tests
 check exact on-disk casing. Existing lowercase Git paths for Affogato, Churros,
 Fries, Nachos and Waffles are preserved for case-sensitive hosting.

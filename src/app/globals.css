@@ -484,13 +484,82 @@ a {
 }
 
 .product-card--snack .product-media {
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
+  background: var(--calle-white);
+  border: 1px solid var(--calle-oat);
 }
 
 .product-card--snack .product-media img {
-  /* The 4:5 snack canvases have transparent margins; frame the full artwork, not the empty canvas. */
-  height: 125% !important;
-  top: -12.5% !important;
+  /* Trim only transparent canvas margins; asset tests protect the food silhouettes. */
+  height: 150% !important;
+  top: -25% !important;
+  padding: 0;
+}
+
+.product-card--snack {
+  position: relative;
+  perspective: 1000px;
+  padding: 0;
+  background: transparent;
+}
+
+.product-card--snack .product-surface {
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--calle-card);
+  backface-visibility: hidden;
+  transition: transform .3s ease-out;
+}
+
+#snacks .product-caption {
+  padding: 10px 0 0;
+}
+
+.card-options summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--calle-mocha);
+  font-size: 13px;
+  text-decoration: none;
+  list-style: none;
+}
+
+.card-options summary::-webkit-details-marker { display: none; }
+.options-close-label, .card-options[open] .options-open-label { display: none; }
+.card-options[open] .options-close-label { display: inline; }
+
+.product-card--snack:has(.card-options[open]) .product-surface {
+  transform: rotateY(180deg);
+  visibility: hidden;
+}
+
+.card-back {
+  position: absolute;
+  inset: 0 0 52px;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--calle-card);
+  backface-visibility: hidden;
+  animation: card-flip .3s ease-out;
+}
+
+.options-name { font-size: 18px; font-weight: 500; }
+
+.card-back .product-options {
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+}
+
+@keyframes card-flip {
+  from { transform: rotateY(-180deg); }
+  to { transform: rotateY(0); }
 }
 
 .editorial-card .product-caption {
@@ -498,7 +567,7 @@ a {
 }
 
 .product-card--drink h4 {
-  min-height: 2.7em;
+  min-height: 1.35em;
 }
 
 .product-prices {
@@ -553,10 +622,6 @@ a {
 
 .product-slider--editorial .swiper-wrapper {
   align-items: flex-start;
-}
-
-#snacks .swiper-wrapper {
-  align-items: stretch;
 }
 
 .product-slider--editorial .slider-footnote {

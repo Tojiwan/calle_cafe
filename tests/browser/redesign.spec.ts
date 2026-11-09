@@ -22,12 +22,41 @@ test("unified cards separate real variants and keep snack chips informational", 
   await expect(waffles.locator(".option-chip")).toHaveText(["Chocolate", "Caramel", "Strawberry", "Matcha", "Almond", "Oreo", "Biscoff", "Choco Chips"]);
   await expect(page.locator(".option-chip:is(button, a, [tabindex], [role=button]), .option-chip :is(button, a, [tabindex])")).toHaveCount(0);
   await expect(page.locator('[data-product-id="nachos"] .product-options')).toHaveCount(0);
+  await expect(waffles.locator('.product-surface .product-options')).toHaveCount(0);
+  await expect(waffles.locator('.card-back .product-options')).toHaveCount(1);
+  expect(await waffles.locator('.product-media').evaluate(el => getComputedStyle(el).aspectRatio)).toBe('4 / 3');
   await expect(page.locator(".product-price")).toHaveCount(42);
   const priceBottoms = await page.locator('#coffee-based .product-card').evaluateAll(cards => cards.map(card => {
     const price = [...card.querySelectorAll('.product-price')].at(-1)!;
     return price.getBoundingClientRect().bottom - card.getBoundingClientRect().top;
   }));
   expect(Math.max(...priceBottoms) - Math.min(...priceBottoms)).toBeLessThanOrEqual(1);
+});
+
+test("snack options flip with keyboard and pointer without moving the slider", async ({ page }) => {
+  for (const width of [320, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const card = page.locator('[data-product-id="churros"]');
+    const toggle = card.locator('summary');
+    const counter = page.locator('[data-slider-id="snacks"] [role="status"]');
+    const before = await counter.textContent();
+    await expect(card.locator('.card-back')).toBeHidden();
+    const height = (await card.boundingBox())!.height;
+    await toggle.focus();
+    await toggle.press('Enter');
+    await expect(card.locator('.card-back')).toBeVisible();
+    await expect(card.locator('.product-surface')).toBeHidden();
+    await expect(toggle).toHaveText(/Back to item/);
+    await expect(counter).toHaveText(before!);
+    expect(Math.abs((await card.boundingBox())!.height - height)).toBeLessThan(1);
+    await toggle.click();
+    await expect(card.locator('.card-back')).toBeHidden();
+    await expect(card.locator('.product-surface')).toBeVisible();
+    await expect(page.locator('[data-product-id="nachos"] summary')).toHaveCount(0);
+  }
+  const coffee = page.locator('[data-product-id="EYSEL NAT KOPI"]');
+  const gap = await coffee.evaluate(card => card.querySelector('.product-prices')!.getBoundingClientRect().top - card.querySelector('h4')!.getBoundingClientRect().bottom);
+  expect(gap).toBeLessThanOrEqual(13);
 });
 
 test("weekend drinks retain their original card and slider treatment", async ({ page }) => {
@@ -113,7 +142,7 @@ test("normal-motion pointer dragging updates progress and keeps other categories
   await expect(coffee.getByRole('button', { name: /^Next/ })).toBeDisabled();
 });
 
-test("redesigned cards fit all widths and snack card bottoms align without clipping options", async ({ page }) => {
+test("redesigned cards fit all widths and snack cards keep natural heights without clipping options", async ({ page }) => {
   for (const width of [320, 375, 390, 430, 768, 1024, 1200, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(page.locator('.product-card--snack')).toHaveCount(6);
@@ -121,9 +150,7 @@ test("redesigned cards fit all widths and snack card bottoms align without clipp
     expect(await page.locator('.product-card--drink, .product-card--snack').evaluateAll(cards => cards.every(card => card.scrollWidth <= card.clientWidth))).toBe(true);
     const waffles = await page.locator('[data-product-id="waffles"]').boundingBox();
     const nachos = await page.locator('[data-product-id="nachos"]').boundingBox();
-    expect(Math.abs(waffles!.y + waffles!.height - nachos!.y - nachos!.height)).toBeLessThanOrEqual(1);
-    const bottoms = await page.locator('#snacks .product-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().bottom));
-    expect(Math.max(...bottoms) - Math.min(...bottoms)).toBeLessThanOrEqual(1);
+    expect(waffles!.height).toBeGreaterThan(nachos!.height + 40);
     expect(await page.locator('#snacks .product-card').evaluateAll(cards => cards.every(card => card.scrollHeight <= card.clientHeight))).toBe(true);
     const media = await page.locator('#coffee-based-track .product-media').first().boundingBox();
     const nextMedia = await page.locator('#coffee-based-track .product-media').nth(1).boundingBox();
